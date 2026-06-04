@@ -1,4 +1,4 @@
-export const _CACHE_ENABLED = false;
+export const _CACHE_ENABLED = false; //change it to true and setup your upstash so you can cache your data
 
 const IS_LOCAL_NODE = (() => {
   try {
