@@ -120,7 +120,7 @@ Got a provider you'd like added? Open an issue or drop it in the Discord.
 This project is community-kept-alive — if it helps you, please:
 
 - ⭐ **Star the repo** so others can find it
-- 💬 **[Join the Discord](https://discord.com/invite/zs22ZJttZM)** to discuss, report issues, or suggest providers
+- 💬 **[Join the Discord](https://discord.gg/MARQ9z9QSX)** to discuss, report issues, or suggest providers
 - 🛠️ **Open a PR** if you want to add or fix something
 
 ---
@@ -135,6 +135,6 @@ When this was last updated, AnimePahe switched from DDoS-Guard to a Cloudflare J
 
 hope it helped :3
 
-[![Discord](https://img.shields.io/badge/Join%20the%20community-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/zs22ZJttZM)
+[![Discord](https://img.shields.io/badge/Join%20the%20community-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/MARQ9z9QSX)
 
 </div>
