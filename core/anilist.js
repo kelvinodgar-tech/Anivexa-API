@@ -82,11 +82,37 @@ async function getMedia(anilistId) {
         }
         throw new Error(`Jikan 429 for MAL ID ${malId} (exhausted retries)`);
       }
-      if (!r.ok) throw new Error(`Jikan ${r.status}`);
+      // On 5xx / network errors, fall back to AniList-only data if available rather than hard-failing.
+      if (!r.ok) {
+        if (al) break; // exit loop, jikan stays null, fall through to AniList fallback below
+        throw new Error(`Jikan ${r.status}`);
+      }
       jikan = await r.json();
       break;
     }
-    const d = jikan.data;
+    const d = jikan?.data ?? null;
+    // If Jikan was unavailable but we have AniList data, build a partial media object from AniList only.
+    if (!d && al) {
+      const media = {
+        id,
+        idMal: malId,
+        title: {
+          english: al.title?.english ?? null,
+          romaji: al.title?.romaji ?? null,
+          native: al.title?.native ?? null,
+        },
+        status: AL_STATUS_MAP[al.status] ?? "RELEASING",
+        format: al.format ?? null,
+        episodes: al.episodes ?? null,
+        seasonYear: al.seasonYear ?? null,
+        startDate: al.startDate ?? null,
+        nextAiringEpisode: al.nextAiringEpisode ?? null,
+        synonyms: Array.isArray(al.synonyms) ? al.synonyms : [],
+      };
+      resolved.set(id, media);
+      inflight.delete(id);
+      return media;
+    }
     if (!d) throw new Error(`Jikan returned no data for MAL ID ${malId}`);
     const media = {
       id,

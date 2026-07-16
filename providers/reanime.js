@@ -422,6 +422,17 @@ async function fetchAnimeDetail(animeId) {
   return res.json().catch(() => null);
 }
 __name(fetchAnimeDetail, "fetchAnimeDetail");
+// Extract AniList ID embedded in AniList CDN cover image URLs.
+// e.g. https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-xxxx.jpg → 16498
+function extractAnilistIdFromCover(coverImage) {
+  const urls = [coverImage?.extra_large, coverImage?.large, coverImage?.medium].filter(Boolean);
+  for (const url of urls) {
+    const m = url.match(/anilist\.co\/.*\/bx(\d+)-/);
+    if (m) return Number(m[1]);
+  }
+  return null;
+}
+__name(extractAnilistIdFromCover, "extractAnilistIdFromCover");
 async function resolveSeries(anilistId, ctx = {}) {
   const cacheKey = `np:reanime:${anilistId}`;
   const cached = cacheGet(cacheKey);
@@ -438,8 +449,34 @@ async function resolveSeries(anilistId, ctx = {}) {
     }
   }));
 
+  // Fast pass: AniList CDN cover URLs embed the AniList ID as bx{id}-*.
+  // If a candidate's cover image already confirms our ID we can skip detail fetches entirely.
+  for (const [id, r] of candidates) {
+    const coverId = extractAnilistIdFromCover(r.cover_image);
+    if (coverId && coverId === Number(anilistId)) {
+      const data = {
+        animeId: id,
+        title: r.title?.english || r.title?.romaji || id,
+        anilistId: Number(anilistId),
+        malId: null,
+        subbed: Number.isFinite(r.subbed) ? r.subbed : null,
+        dubbed: Number.isFinite(r.dubbed) ? r.dubbed : null,
+        episodesCount: Number.isFinite(r.episodes) ? r.episodes : null,
+        matchType: "cover_image",
+        matchScore: 1,
+      };
+      cacheSet(cacheKey, data, SHOW_IDENTITY_TTL);
+      return data;
+    }
+  }
+
+  // Fallback: fetch detail pages only for candidates that had no AniList CDN cover
+  // (TMDB / MAL covers don't embed an ID we can read directly).
+  const needsDetail = [...candidates.keys()].filter(
+    (id) => extractAnilistIdFromCover(candidates.get(id)?.cover_image) === null
+  );
   const details = await Promise.all(
-    [...candidates.keys()].map(async (id) => ({ id, detail: await fetchAnimeDetail(id).catch(() => null) }))
+    needsDetail.map(async (id) => ({ id, detail: await fetchAnimeDetail(id).catch(() => null) }))
   );
 
   for (const { id, detail } of details) {

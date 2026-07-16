@@ -11,7 +11,8 @@ import { getEpisodes as anidbappEpisodes } from "../providers/anidbapp.js";
 import { getEpisodes as dhiveEpisodes } from "../providers/2dhive.js";
 import { getEpisodes as animenosubEpisodes } from "../providers/animenosub.js";
 import { getEpisodes as anizoneEpisodes } from "../providers/anizone.js";
-import { getEpisodes as anibdEpisodes } from "../providers/anibd.js";
+import { getEpisodes as anibdEpisodes   } from "../providers/anibd.js";
+import { getEpisodes as senshiEpisodes } from "../providers/senshi.js";
 const JIKAN = "https://api.jikan.moe/v4";
 const UA    = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
@@ -168,7 +169,8 @@ const PROVIDER_ALIASES = {
   "2dhive": "2dhive",
   animenosub: "animenosub",
   anizone: "anizone",
-  anibd: "anibd",
+  anibd:  "anibd",
+  senshi: "senshi",
 };
 
 export function resolveProviders(rawNames) {
@@ -193,7 +195,8 @@ function providerFns(anilistId, status, ctx) {
     "2dhive": () => withCache(`epv:2dhive:${anilistId}`,  status, () => dhiveEpisodes(anilistId, ctx)),
     animenosub: () => withCache(`epv:animenosub:${anilistId}`, status, () => animenosubEpisodes(anilistId, ctx)),
     anizone: () => withCache(`epv:anizone:${anilistId}`, status, () => anizoneEpisodes(anilistId, ctx)),
-    anibd: () => withCache(`epv:anibd:${anilistId}`, status, () => anibdEpisodes(anilistId, ctx)),
+    anibd:  () => withCache(`epv:anibd:${anilistId}`,   status, () => anibdEpisodes(anilistId, ctx)),
+    senshi: () => withCache(`epv:senshi:${anilistId}`,  status, () => senshiEpisodes(anilistId, ctx)),
   };
 }
 
@@ -228,7 +231,7 @@ export async function buildEpisodesWithCache(anilistId, media, anizip) {
 
   const ctx = { media, anizip, jikanEps, maxPages: undefined };
 
-  const [manga, reanime, anikoto, animegg, anineko, anidbapp, dhive, animenosub, anizone, anibd] = await Promise.all([
+  const [manga, reanime, anikoto, animegg, anineko, anidbapp, dhive, animenosub, anizone, anibd, senshi] = await Promise.all([
     safe("allmanga",   () => withCache(`epv:manga:${anilistId}`,      status, () => mangaEpisodes(anilistId, ctx))),
     safe("reanime",    () => withCache(`epv:reanime:${anilistId}`,    status, () => reanimeEpisodes(anilistId, ctx))),
     safe("anikoto",    () => withCache(`epv:anikoto:${anilistId}`,    status, () => anikotoEpisodes(anilistId, ctx))),
@@ -239,6 +242,7 @@ export async function buildEpisodesWithCache(anilistId, media, anizip) {
     safe("animenosub", () => withCache(`epv:animenosub:${anilistId}`, status, () => animenosubEpisodes(anilistId, ctx))),
     safe("anizone",    () => withCache(`epv:anizone:${anilistId}`,    status, () => anizoneEpisodes(anilistId, ctx))),
     safe("anibd",      () => withCache(`epv:anibd:${anilistId}`,      status, () => anibdEpisodes(anilistId, ctx))),
+    safe("senshi",     () => withCache(`epv:senshi:${anilistId}`,     status, () => senshiEpisodes(anilistId, ctx))),
   ]);
 
   return {
@@ -252,5 +256,6 @@ export async function buildEpisodesWithCache(anilistId, media, anizip) {
     animenosub:  animenosub.ok  ? animenosub.data  : { error: animenosub.error,  stack: animenosub.stack },
     anizone:     anizone.ok     ? anizone.data     : { error: anizone.error,     stack: anizone.stack },
     anibd:       anibd.ok       ? anibd.data       : { error: anibd.error,       stack: anibd.stack },
+    senshi:      senshi.ok      ? senshi.data      : { error: senshi.error,      stack: senshi.stack },
   };
 }

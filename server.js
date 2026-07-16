@@ -1,29 +1,61 @@
 import http from "node:http";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import worker from "./index.js";
 
-const PORT = process.env.PORT ?? 4000;
+const PORT  = process.env.PORT ?? 4000;
+const BASE  = process.env.BASE_PATH ?? "";
+const __dir = dirname(fileURLToPath(import.meta.url));
 
-const BASE = process.env.BASE_PATH ?? "";
+const STATIC = {
+  "/":           { file: "docs/landing.html", mime: "text/html" },
+  "/docs":       { file: "docs/index.html",   mime: "text/html" },
+  "/style.css":  { file: "docs/style.css",    mime: "text/css"  },
+  "/logo.svg":   { file: "docs/logo.svg",     mime: "image/svg+xml" },
+};
+
+function serveStatic(res, entry) {
+  try {
+    const body = readFileSync(join(__dir, entry.file));
+    res.writeHead(200, {
+      "Content-Type":  entry.mime + "; charset=utf-8",
+      "Cache-Control": "no-cache",
+    });
+    res.end(body);
+  } catch {
+    res.writeHead(404);
+    res.end("Not found");
+  }
+}
 
 async function nodeToRequest(req) {
-  const host = req.headers["host"] ?? `localhost:${PORT}`;
+  const host     = req.headers["host"] ?? `localhost:${PORT}`;
   const stripped = BASE && req.url.startsWith(BASE) ? req.url.slice(BASE.length) || "/" : req.url;
-  const url = `http://${host}${stripped}`;
+  const url      = `http://${host}${stripped}`;
 
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
   const body = chunks.length ? Buffer.concat(chunks) : null;
 
   return new Request(url, {
-    method: req.method,
+    method:  req.method,
     headers: req.headers,
-    body: body?.length ? body : undefined,
-    duplex: "half",
+    body:    body?.length ? body : undefined,
+    duplex:  "half",
   });
 }
 
 const server = http.createServer(async (req, res) => {
   console.log(`→ ${req.method} ${req.url}`);
+
+  const pathname = req.url.split("?")[0];
+  const staticEntry = STATIC[pathname];
+
+  if (req.method === "GET" && staticEntry) {
+    return serveStatic(res, staticEntry);
+  }
+
   try {
     const request  = await nodeToRequest(req);
     const response = await worker.fetch(request, {});
@@ -42,13 +74,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`api-vexa dev server running at http://localhost:${PORT}`);
-  console.log(`  GET /map/:anilistId`);
-  console.log(`  GET /episodes/:anilistId`);
-  console.log(`  GET /watch/allmanga/:id/sub|dub/allmanga-:ep`);
-  console.log(`  GET /watch/reanime/:id/sub|dub/reanime-:ep`);
-  console.log(`  GET /watch/anikoto/:id/sub|dub/anikoto-:ep`);
-  console.log(`  GET /watch/animegg/:id/sub|dub/animegg-:ep`);
-  console.log(`  GET /watch/anineko/:id/sub|dub/anineko-:ep`);
-  console.log(`  GET /watch/anidbapp/:id/sub|dub/anidbapp-:ep`);
+  console.log(`Anivexa dev server → http://localhost:${PORT}`);
 });
