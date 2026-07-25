@@ -81,7 +81,7 @@ Runs on Node.js. No build step needed.
 
 ## Deploying on Vercel
 
-> ⚠️ **Not recommended.** Vercel runs on shared datacenter IPs that are widely blocked by anime streaming sites. Most providers will fail silently or return errors — the API will technically run but you'll get little to no data back. Use a self-hosted VPS or Cloudflare Workers instead. The proxy file is for anidb app not for streams!
+> ⚠️ **Not recommended.** Vercel runs on shared datacenter IPs that are widely blocked by anime streaming sites. Most providers will fail silently or return errors — the API will technically run but you'll get little to no data back. Use a self-hosted VPS or use railway, render etc etc. The proxy file is for anidb app not for streams!
 
 ---
 
