@@ -28,7 +28,7 @@ It's the backbone powering **[Anivexa](https://github.com/walterwhite-69/Anivexa
 
 | Provider | Status | Notes |
 |---|---|---|
-| **AllManga** | ✅ Active | Large Library |
+| **MKissa** | ✅ Active | Large Library |
 | **AnimePahe** | ❌ Removed | Cloudflare JS Challenge — no reliable bypass |
 | **Reanime** | ✅ Active | Solid source for a wide range of titles |
 | **AniKoto** | ✅ Active | Good library, consistent |
@@ -54,7 +54,7 @@ Returns cross-platform ID mappings — MAL, TVDB, TMDB, Kitsu, AniDB, and more.
 GET /episodes/:anilistId
 GET /episodes/:provider[/:provider...]/:anilistId
 ```
-Returns episode lists in a single response with smart background refresh. Pass one or more provider names in the path to filter results — e.g. `/episodes/anizone/allmanga/16498` returns only those two. Omit providers to get all of them.
+Returns episode lists in a single response with smart background refresh. Pass one or more provider names in the path to filter results — e.g. `/episodes/anizone/mkissa/16498` returns only those two. Omit providers to get all of them.
 
 ```
 GET /watch/:provider/:anilistId/sub|dub/:provider-:ep
