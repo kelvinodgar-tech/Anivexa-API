@@ -28,7 +28,7 @@ It's the backbone powering **[Anivexa](https://github.com/walterwhite-69/Anivexa
 
 | Provider | Status | Notes |
 |---|---|---|
-| **MKissa** | ✅ Active | Large Library, Note: it may still return 403 error, their backend is one of the trickiest, it works fine but sometimes return "Need Captcha" Error |
+| **MKissa** | ✅ Active | Large Library, Note: it may still return 403 error, their backend is one of the trickiest, it works fine but sometimes return "Need Captcha" Error. It might be slow since it will retry if it gets captcha error while requesting|
 | **AnimePahe** | ❌ Removed | Cloudflare JS Challenge — no reliable bypass |
 | **Reanime** | ✅ Active | Solid source for a wide range of titles |
 | **AniKoto** | ✅ Active | Good library, consistent |
