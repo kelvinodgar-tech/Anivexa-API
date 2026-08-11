@@ -801,6 +801,32 @@ async function extractStreamlare(id) {
 }
 __name(extractStreamlare, "extractStreamlare");
 
+async function extractClock(url) {
+  try {
+    const parsed = new URL(url);
+    const clockUrl = parsed.pathname.includes("/clock.json") ? url : url.replace("/clock", "/clock.json");
+    const r = await fetch(clockUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+        "Referer": "https://allanime.day/player.html",
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin"
+      }
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    const links = Array.isArray(data?.links) ? data.links : [];
+    const best = links.find((item) => item?.hls && item?.link) || links.find((item) => item?.link);
+    return best?.link || null;
+  } catch {
+    return null;
+  }
+}
+__name(extractClock, "extractClock");
+
 function embedMediaType(url) {
   if (!url) return null;
   if (url.includes(".m3u8")) return "hls";
@@ -813,10 +839,13 @@ async function extractSource(src) {
   let url = src.sourceUrl;
   if (url && url.startsWith("--")) url = decodeHexUrl(url.slice(2));
   if (url && url.startsWith("/apivtwo/clock")) url = "https://allanime.day" + url.replace("/clock", "/clock.json");
+  if (url && /^https?:\/\/allanime\.day\/apivtwo\/clock(?:\.json)?/i.test(url)) url = url.replace("/clock?", "/clock.json?");
   let extractedUrl = null;
   try {
     const host = new URL(url).hostname.replace(/^www\./, "");
-    if (src.type === "player") extractedUrl = url;
+    if (host === "allanime.day" && /\/apivtwo\/clock(?:\.json)?/i.test(new URL(url).pathname)) {
+      extractedUrl = await extractClock(url);
+    } else if (src.type === "player") extractedUrl = url;
     else if (host === "mp4upload.com") {
       const m = url.match(/embed-([a-zA-Z0-9]+)\.html/i);
       if (m?.[1]) extractedUrl = await extractMp4(m[1]);
