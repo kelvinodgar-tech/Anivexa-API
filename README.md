@@ -73,10 +73,25 @@ GET /stream/reanime/:id/sub|dub/:ep
 ```bash
 git clone https://github.com/walterwhite-69/Anivexa-API
 cd Anivexa-API
+npm install
+cp .env.example .env
 node server.js
 ```
 
 Runs on Node.js. No build step needed.
+
+### Environment variables
+
+Copy `.env.example` to `.env` and fill in the values.
+
+| Variable | Default | Notes |
+|---|---|---|
+| `CACHE_ENABLED` | `false` | Set to `true` to enable caching (memory + disk + Redis). |
+| `UPSTASH_REDIS_REST_URL` | — | From [upstash.com](https://upstash.com). Only used when `CACHE_ENABLED=true`. |
+| `UPSTASH_REDIS_REST_TOKEN` | — | From [upstash.com](https://upstash.com). Only used when `CACHE_ENABLED=true`. |
+| `REDIS_TTL` | `900` | Seconds. Fallback expiry for Redis writes when a per-item TTL isn't computed. Most cache entries use their own smart TTLs based on anime status (finished/airing/etc.) — this is just the safety-net default. |
+
+On Vercel (or Railway/Render), set these as regular project environment variables instead of committing `.env`.
 
 ---
 
