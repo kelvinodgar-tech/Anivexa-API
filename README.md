@@ -4,7 +4,7 @@
 <img src="docs/logo.svg" width="80" height="80"/>
 
 
-# Anivexa API 2.2
+# Anivexa API 2.2.1
 
 **Anime streaming aggregator API — one endpoint, all your sources.**
 
@@ -89,7 +89,8 @@ Copy `.env.example` to `.env` and fill in the values.
 | `CACHE_ENABLED` | `false` | Set to `true` to enable caching (memory + disk + Redis). |
 | `UPSTASH_REDIS_REST_URL` | — | From [upstash.com](https://upstash.com). Only used when `CACHE_ENABLED=true`. |
 | `UPSTASH_REDIS_REST_TOKEN` | — | From [upstash.com](https://upstash.com). Only used when `CACHE_ENABLED=true`. |
-| `REDIS_TTL` | `900` | Seconds. Fallback expiry for Redis writes when a per-item TTL isn't computed. Most cache entries use their own smart TTLs based on anime status (finished/airing/etc.) — this is just the safety-net default. |
+| `DEFAULT_REDIS_TTL` | `900` | Seconds. Fallback expiry for Redis writes when a per-item TTL isn't computed. Most cache entries use their own smart TTLs based on anime status (finished/airing/etc.) — this is just the safety-net default. |
+| `PORT` | `4000` | Local dev server port (`server.js` only — ignored on Vercel/serverless). Change it if `4000` is already in use, then hit `http://localhost:PORT`. |
 
 On Vercel (or Railway/Render), set these as regular project environment variables instead of committing `.env`.
 
