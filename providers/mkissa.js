@@ -19,7 +19,8 @@ const DISCOVERY_CONCURRENCY = 16;
 const DISCOVERY_LIMIT = 600;
 const FETCH_TIMEOUT_MS = 10000;
 const EXTRACT_TIMEOUT_MS = 5000;
-const TMDB_TOKEN = "REDACTED_TMDB_TOKEN";
+// TMDB read token comes from the environment (never hardcoded).
+const TMDB_TOKEN = process.env.TMDB_TOKEN || "";
 
 const HEX_TABLE = {
   "79": "A", "7a": "B", "7b": "C", "7c": "D", "7d": "E", "7e": "F", "7f": "G",
@@ -1335,6 +1336,7 @@ async function fetchKitsuId(malId) {
 __name(fetchKitsuId, "fetchKitsuId");
 
 async function fetchTMDB(titles, year, format) {
+  if (!TMDB_TOKEN) return { themoviedbId: null, imdbId: null, thetvdbId: null };
   const tmdbType = format === "MOVIE" || format === "OVA" || format === "SPECIAL" ? "movie" : "tv";
   let result = null;
   for (const title of titles) {
